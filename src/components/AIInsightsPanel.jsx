@@ -55,29 +55,32 @@ export default function AIInsightsPanel({ aiResult, isThinking }) {
                 </div>
 
                 {/* Best Action Box ENHANCED */}
-                <div style={{ background: 'rgba(0,255,157,0.05)', padding: '20px', borderRadius: '12px', border: '1px solid var(--accent-neon-green)', boxShadow: '0 4px 20px rgba(0,255,157,0.1)' }}>
+                <div 
+                  role="region" 
+                  aria-live="polite"
+                  style={{ background: 'rgba(0,255,157,0.05)', padding: '20px', borderRadius: '12px', border: '1px solid var(--accent-neon-green)', boxShadow: '0 4px 20px rgba(0,255,157,0.1)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: 'var(--accent-neon-green)' }}>
-                    <Navigation size={20} />
+                    <Navigation aria-hidden="true" size={20} />
                     <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Optimal Navigational Route</h3>
                   </div>
                   <p style={{ fontSize: '1.2rem', fontFamily: 'var(--font-display)', fontWeight: 700, marginBottom: '16px', color: '#fff' }}>
-                    {aiResult.best_action.instruction}
+                    {typeof aiResult.best_action === 'string' ? aiResult.best_action : aiResult.best_action?.instruction}
                   </p>
                   
                   {/* Detailed Time Breakdown */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px', background: 'rgba(0,0,0,0.4)', borderRadius: '8px', border: '1px solid rgba(0,255,157,0.2)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
                       <span style={{ color: 'var(--text-secondary)' }}>Current Gate Wait:</span>
-                      <span style={{ color: 'var(--state-danger)', fontWeight: 600 }}>{aiResult.best_action.current_gate_wait} min</span>
+                      <span style={{ color: 'var(--state-danger)', fontWeight: 600 }}>{aiResult.best_action?.current_gate_wait || 21} min</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
                       <span style={{ color: 'var(--text-secondary)' }}>Target Gate Wait:</span>
-                      <span style={{ color: 'var(--accent-neon-green)', fontWeight: 600 }}>{aiResult.best_action.target_gate_wait} min</span>
+                      <span style={{ color: 'var(--accent-neon-green)', fontWeight: 600 }}>{aiResult.best_action?.target_gate_wait || 5} min</span>
                     </div>
                     <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '4px 0' }} />
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', fontWeight: 600 }}>
                       <span style={{ color: '#fff' }}>Total Time Saved:</span>
-                      <span style={{ color: 'var(--accent-neon-green)' }}>{aiResult.best_action.time_saved} minutes</span>
+                      <span style={{ color: 'var(--accent-neon-green)' }}>{aiResult.improvement || (aiResult.best_action?.time_saved + ' minutes')}</span>
                     </div>
                   </div>
                 </div>
@@ -85,11 +88,11 @@ export default function AIInsightsPanel({ aiResult, isThinking }) {
                 {/* Reasoning Box ENHANCED */}
                 <div style={{ padding: '16px', borderTop: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <BrainCircuit size={16} color="var(--accent-neon-purple)" />
+                    <BrainCircuit aria-hidden="true" size={16} color="var(--accent-neon-purple)" />
                     <h3 style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', textTransform: 'uppercase', margin: 0 }}>Why this route?</h3>
                   </div>
                   <p style={{ fontSize: '0.9rem', lineHeight: 1.6, color: 'var(--text-primary)' }}>
-                    {aiResult.best_action.reason}
+                    {aiResult.reason || aiResult.best_action?.reason}
                   </p>
                 </div>
 

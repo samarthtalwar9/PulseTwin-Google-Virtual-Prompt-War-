@@ -24,7 +24,7 @@ const metricValues = {
 };
 
 // Mini Sparkline SVG component
-const Sparkline = ({ data, color }) => {
+const Sparkline = React.memo(({ data, color }) => {
   if (!data || data.length < 2) return null;
   const max = Math.max(...data);
   const min = Math.min(...data);
@@ -50,16 +50,16 @@ const Sparkline = ({ data, color }) => {
       />
     </svg>
   );
-};
+});
 
-export default function MetricsPanel({ state }) {
+const MetricsPanel = React.memo(({ state }) => {
   const currentMetrics = metricValues[state] || metricValues.idle;
 
   return (
-    <div className="glass-panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div role="region" aria-label="System Telemetry Metrics" className="glass-panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>Live Telemetry</h2>
       
-      <div className="metrics-grid">
+      <div className="metrics-grid" role="list">
         {currentMetrics.map((metric, index) => {
           const Icon = metric.icon;
           let color = 'var(--text-secondary)';
@@ -80,6 +80,7 @@ export default function MetricsPanel({ state }) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1, duration: 0.4 }}
               className="metric-card"
+              role="listitem"
               style={{
                 padding: '16px 20px',
                 borderRadius: '12px',
@@ -112,4 +113,6 @@ export default function MetricsPanel({ state }) {
       </div>
     </div>
   );
-}
+});
+
+export default MetricsPanel;

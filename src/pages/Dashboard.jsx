@@ -4,7 +4,8 @@ import Heatmap from '../components/Heatmap';
 import MetricsPanel from '../components/MetricsPanel';
 import AIInsightsPanel from '../components/AIInsightsPanel';
 import ScenarioComparisons from '../components/ScenarioComparisons';
-import { runPulseTwinPipeline, generateFallbackData } from '../lib/gemini';
+import { fetchPulseTwinAIResponse } from '../services/geminiService';
+import { generateFallbackSimulation } from '../agents/SimulationAgent';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
 import { motion } from 'framer-motion';
 
@@ -44,7 +45,7 @@ export default function Dashboard() {
     setPipelineState('thinking');
     
     try {
-      const result = await runPulseTwinPipeline();
+      const result = await fetchPulseTwinAIResponse();
       setAiResult(result);
       setCongestionLevel('low');
       setPipelineState('complete');
@@ -72,7 +73,7 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Optimization failed:", error);
       setTimeout(() => {
-        setAiResult(generateFallbackData());
+        setAiResult(generateFallbackSimulation());
         setCongestionLevel('low');
         setPipelineState('complete');
         
@@ -109,10 +110,11 @@ export default function Dashboard() {
             className="glass-button primary"
             onClick={handleOptimize}
             disabled={isOptimizing}
+            aria-label="Simulate routing scenarios using AI"
             style={{ opacity: isOptimizing ? 0.7 : 1, padding: '12px 28px', fontSize: '1rem' }}
           >
             {isOptimizing ? 'Analyzing crowd patterns...' : 'Simulate Routing'}
-            {!isOptimizing && <Settings2 size={20} />}
+            {!isOptimizing && <Settings2 aria-hidden="true" size={20} />}
           </button>
         </div>
       </header>

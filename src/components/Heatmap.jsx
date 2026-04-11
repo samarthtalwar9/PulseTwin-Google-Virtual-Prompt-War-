@@ -20,7 +20,7 @@ const EDGES = [
   { id: 'path-e', start: NODES.USER, end: NODES.GATE_8, control: {x: 550, y: 300}, density: 'low' }
 ];
 
-export default function Heatmap({ congestionLevel, isThinking, aiResult }) {
+const Heatmap = React.memo(({ congestionLevel, isThinking, aiResult }) => {
   const [hoveredNode, setHoveredNode] = useState(null);
   const [particles, setParticles] = useState([]);
 
@@ -42,14 +42,17 @@ export default function Heatmap({ congestionLevel, isThinking, aiResult }) {
 
   // Determine Best Route
   const isTargetGate = (nodeId) => {
-    if (!aiResult) return false;
+    if (!aiResult || !aiResult.best_action) return false;
     // Basic match logic based on output string "Gate 8"
-    return aiResult.best_action.instruction.includes(NODES[nodeId].label);
+    return typeof aiResult.best_action === 'string' 
+      ? aiResult.best_action.includes(NODES[nodeId].label)
+      : aiResult.best_action.instruction?.includes(NODES[nodeId].label);
   };
 
   const isBestPath = (edge) => {
-    if (!aiResult) return false;
-    return aiResult.best_action.instruction.includes("Gate 8") && edge.end.id === 'GATE_8';
+    if (!aiResult || !aiResult.best_action) return false;
+    const actionStr = typeof aiResult.best_action === 'string' ? aiResult.best_action : (aiResult.best_action.instruction || "");
+    return actionStr.includes("Gate 8") && edge.end.id === 'GATE_8';
   };
 
   const getDensityColor = (density) => {
@@ -66,7 +69,10 @@ export default function Heatmap({ congestionLevel, isThinking, aiResult }) {
   };
 
   return (
-    <div style={{
+    <div 
+      role="region"
+      aria-label="Interactive Live Crowd Map"
+      style={{
       width: '100%',
       height: '100%',
       minHeight: '400px',
@@ -264,4 +270,6 @@ export default function Heatmap({ congestionLevel, isThinking, aiResult }) {
       </AnimatePresence>
     </div>
   );
-}
+});
+
+export default Heatmap;

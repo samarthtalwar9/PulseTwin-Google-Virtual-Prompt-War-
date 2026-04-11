@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Clock } from 'lucide-react';
 
-export default function ScenarioComparisons({ scenarios }) {
+const ScenarioComparisons = React.memo(({ scenarios }) => {
   const isAvailable = scenarios && scenarios.length > 0;
   
   const placeholders = [
@@ -14,7 +14,7 @@ export default function ScenarioComparisons({ scenarios }) {
   const items = isAvailable ? scenarios : placeholders;
 
   return (
-    <>
+    <div role="list">
       {items.map((scenario, index) => {
         let isBest = false;
         if (isAvailable) {
@@ -30,6 +30,7 @@ export default function ScenarioComparisons({ scenarios }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.15, duration: 0.5 }}
             className="glass-panel"
+            role="listitem"
             style={{ 
               display: 'flex', 
               flexDirection: 'column', 
@@ -104,6 +105,8 @@ export default function ScenarioComparisons({ scenarios }) {
           </motion.div>
         );
       })}
-    </>
+    </div>
   );
-}
+});
+
+export default ScenarioComparisons;

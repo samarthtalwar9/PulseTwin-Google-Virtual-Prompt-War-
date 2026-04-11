@@ -14,7 +14,8 @@ if (API_KEY) {
  * Initializes and validates the Gemini generation model.
  * Enforces structured JSON output to guarantee a consistent interface for the application.
  */
-export async function fetchPulseTwinAIResponse() {
+// Using Google Gemini API for structured AI decision output
+export async function analyzeCrowdData(input = null) {
   if (!genAI) {
     console.warn("⚠️ Valid API Key missing in environment variables. Tripping to fallback state.");
     throw new Error("Missing API_KEY");

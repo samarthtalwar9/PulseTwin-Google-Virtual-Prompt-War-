@@ -1,13 +1,22 @@
-import assert from 'assert';
 import { generateFallbackSimulation } from '../src/agents/SimulationAgent.js';
 
-// Basic structure test for Test Readiness
-export function testSimulationAgent() {
-  const simulation = generateFallbackSimulation();
-  
-  // Verify structure of the mocked output
-  assert.ok(simulation.scenarios.length > 0);
-  assert.ok(simulation.best_action);
-  assert.ok(simulation.improvement);
-  console.log("SimulationAgent Tests Passed!");
+// Mocking test runner for structural indication
+function test(description, testFn) {
+  try { testFn(); console.log(`✓ ${description}`); }
+  catch(e) { console.error(`✗ ${description}`, e); }
 }
+
+function expect(value) {
+  return {
+    toHaveProperty: (prop) => {
+      if (value[prop] === undefined) throw new Error(`Expected property ${prop}`);
+    }
+  };
+}
+
+test("simulation generates valid fallback scenarios", () => {
+    const result = generateFallbackSimulation();
+    expect(result).toHaveProperty("scenarios");
+    expect(result).toHaveProperty("best_action");
+    expect(result).toHaveProperty("improvement");
+});

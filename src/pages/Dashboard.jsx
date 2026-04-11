@@ -4,7 +4,7 @@ import Heatmap from '../components/Heatmap';
 import MetricsPanel from '../components/MetricsPanel';
 import AIInsightsPanel from '../components/AIInsightsPanel';
 import ScenarioComparisons from '../components/ScenarioComparisons';
-import { fetchPulseTwinAIResponse } from '../services/geminiService';
+import { analyzeCrowdData } from '../services/geminiService';
 import { generateFallbackSimulation } from '../agents/SimulationAgent';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
 import { motion } from 'framer-motion';
@@ -45,7 +45,7 @@ export default function Dashboard() {
     setPipelineState('thinking');
     
     try {
-      const result = await fetchPulseTwinAIResponse();
+      const result = await analyzeCrowdData();
       setAiResult(result);
       setCongestionLevel('low');
       setPipelineState('complete');
@@ -106,16 +106,27 @@ export default function Dashboard() {
          </div>
         
         <div className="header-actions" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <button 
-            className="glass-button primary"
-            onClick={handleOptimize}
-            disabled={isOptimizing}
-            aria-label="Simulate routing scenarios using AI"
-            style={{ opacity: isOptimizing ? 0.7 : 1, padding: '12px 28px', fontSize: '1rem' }}
-          >
-            {isOptimizing ? 'Analyzing crowd patterns...' : 'Simulate Routing'}
-            {!isOptimizing && <Settings2 aria-hidden="true" size={20} />}
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--accent-neon-purple)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+              ✨ Powered by Gemini AI
+            </span>
+            <button 
+              className="glass-button primary"
+              onClick={handleOptimize}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleOptimize();
+                }
+              }}
+              disabled={isOptimizing}
+              aria-label="Run AI crowd analysis"
+              style={{ opacity: isOptimizing ? 0.7 : 1, padding: '12px 28px', fontSize: '1rem' }}
+            >
+              {isOptimizing ? 'Analyzing crowd patterns...' : 'Run Gemini Analysis'}
+              {!isOptimizing && <Settings2 aria-hidden="true" size={20} />}
+            </button>
+          </div>
         </div>
       </header>
 

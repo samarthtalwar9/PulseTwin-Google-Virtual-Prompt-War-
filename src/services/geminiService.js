@@ -1,6 +1,10 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getSimulationContext } from '../agents/SimulationAgent';
 import { generatePredictionContext } from '../agents/PredictionAgent';
+import { validateGeminiResponse } from '../utils/responseValidator';
+import { logAIStart, logAIComplete, logAIError, logEvent, LogLevels } from './logService';
+import { API_CONFIG } from '../utils/constants';
+import { delay } from '../utils/helpers';
 
 // Use environment variables securely without exposing hardcoded keys
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
@@ -14,15 +18,19 @@ if (API_KEY) {
  * Initializes and validates the Gemini generation model.
  * Enforces structured JSON output to guarantee a consistent interface for the application.
  */
-// Using Google Gemini API for structured AI decision output
+// Google Gemini API used for real-time AI decision intelligence
+// Structured output ensures compatibility with multi-agent system
+// Includes fallback and retry for production reliability
 export async function analyzeCrowdData(input = null) {
+  logAIStart();
+  
   if (!genAI) {
-    console.warn("⚠️ Valid API Key missing in environment variables. Tripping to fallback state.");
+    logEvent("Valid API Key missing in environment variables. Tripping to fallback state.", LogLevels.WARN);
     throw new Error("Missing API_KEY");
   }
 
   const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
+    model: API_CONFIG.MODEL_VERSION,
     // Ensure strict response schemas with modern generation configs
     generationConfig: {
       responseMimeType: "application/json",
@@ -60,13 +68,38 @@ export async function analyzeCrowdData(input = null) {
     }
   `;
 
-  try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
-    return JSON.parse(text);
-  } catch (error) {
-    console.error("Gemini API Request Failed - Safe Fallback Activated:", error);
-    throw error;
+  let attempt = 0;
+  
+  while (attempt <= API_CONFIG.MAX_RETRIES) {
+    try {
+       // Timeout simulated encapsulation
+       const fetchPromise = model.generateContent(prompt);
+       const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), API_CONFIG.TIMEOUT_MS));
+       
+       const result = await Promise.race([fetchPromise, timeoutPromise]);
+       const response = await result.response;
+       const text = await response.text();
+       
+       const parsedJson = JSON.parse(text);
+       
+       if (!validateGeminiResponse(parsedJson)) {
+           throw new Error("Invalid response schema from AI node.");
+       }
+       
+       logAIComplete();
+       return parsedJson;
+
+    } catch (error) {
+       attempt++;
+       logAIError(error);
+       
+       if (attempt > API_CONFIG.MAX_RETRIES) {
+           logEvent("Maximum retry boundary established. Fallback injected immediately.", LogLevels.ERROR);
+           throw error; // Let upper agent boundary catch and execute simulation.test fallback mock
+       }
+       
+       logEvent(`Retrying Gemini Pipeline... Attempt ${attempt}`, LogLevels.WARN);
+       await delay(1000 * attempt); // exponential backoff mock
+    }
   }
 }

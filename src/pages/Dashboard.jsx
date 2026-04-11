@@ -108,7 +108,7 @@ export default function Dashboard() {
         <div className="header-actions" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
             <span style={{ fontSize: '0.7rem', color: 'var(--accent-neon-purple)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-              ✨ Powered by Gemini AI
+              ✨ Powered by Google Gemini AI
             </span>
             <button 
               className="glass-button primary"
